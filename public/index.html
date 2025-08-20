@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Callback Queue</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
+      xintegrity="sha512-c3Nl8+7g4LA1CxgVHTaJ+aQZg+BnSQ7Ea/BZEdfSvdLQKfSgVf6eRxTltbOoJgW7TRL+P+O9xgKzX7n/JarRw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"></script>
+    <style>
+      body {
+        color: #222222;
+        background-color: #fff;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 1rem;
+      }
+      .wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-800">
+            Custom API Activity Configuration
+          </h1>
+          <p class="text-sm text-gray-500">
+            Define the payload to send to your external API.
+          </p>
+        </div>
+      </header>
+
+      <form id="activityForm">
+        <div class="">
+          <div>
+            <label
+              for="payload"
+              class="block text-sm font-medium text-gray-700 mb-2">
+              API Payload (JSON)
+            </label>
+          </div>
+          <textarea
+            id="payload"
+            rows="8"
+            style="width: 400px; resize: vertical"
+            placeholder='{ "key": "{{Contact.Attribute.MyDataExtension.SomeValue}}", "email": "{{EmailAddress}}", "name": "{{Contact.Attribute.MyDataExtension.FirstName}}" }'></textarea>
+
+          <p class="mt-2 text-xs text-gray-500">
+            Use `{{...}}` to reference data from your Journey's entry source.
+          </p>
+        </div>
+
+        <div class="flex justify-end space-x-4">
+          <button
+            id="cancel"
+            type="button"
+            class="px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+            Cancel
+          </button>
+          <button
+            id="save"
+            type="button"
+            class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+            Done
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- The custom activity logic using Postmonger.js -->
+    <script>
+      console.log("main script is called");
+      requirejs.config({
+        paths: {
+          postmonger: "./postmonger.min",
+        },
+      });
+      console.log("postmonger");
+      require(["postmonger"], function (Postmonger) {
+        "use strict";
+
+        const connection = new Postmonger.Session();
+        let payload = {};
+        let authTokens = {};
+
+        // Event handler for when the UI is rendered
+        console.log("connections set");
+        connection.on("initActivity", onInit);
+        connection.on("requestedTokens", onGetTokens);
+        connection.on("requestedEndpoints", onGetEndpoints);
+        connection.on("clickedNext", onClickedNext);
+
+        console.log("get elements");
+        document
+          .getElementById("cancel")
+          .addEventListener("click", function () {
+            connection.trigger("destroy");
+          });
+
+        // Add this line to handle the case where the initActivity event has already fired
+        console.log("requestpayload");
+        connection.trigger("requestPayload");
+        console.log("ready");
+        connection.trigger("ready");
+
+        // This function is triggered when Journey Builder opens the activity UI.
+        function onInit(data) {
+          console.log("onInit fired");
+          if (data) {
+            payload = data;
+            console.log("onInit fired! Payload received.");
+          } else {
+            console.log("onInit fired but no data received.");
+          }
+
+          // Get tokens and endpoints from Journey Builder
+          console.log("requestTokens");
+          connection.trigger("requestTokens");
+          console.log("requestEndpoints");
+          connection.trigger("requestEndpoints");
+
+          // If existing payload exists, populate the form
+          const inArguments =
+            (payload["arguments"] &&
+              payload["arguments"].execute.inArguments) ||
+            [];
+          const savedPayload = inArguments.find((arg) => arg.payload)?.payload;
+          if (savedPayload) {
+            document.getElementById("payload").value = JSON.stringify(
+              savedPayload,
+              null,
+              2
+            );
+          }
+        }
+
+        // Get the JWT and other tokens from Journey Builder
+        function onGetTokens(tokens) {
+          authTokens = tokens;
+          console.log("Tokens received:", authTokens);
+        }
+
+        // Get endpoints from Journey Builder (e.g., restHost)
+        function onGetEndpoints(endpoints) {
+          console.log("Endpoints received:", endpoints);
+        }
+
+        // This function runs when the user clicks 'Done' in the Journey Builder UI.
+        function onClickedNext() {
+          const payloadValue = document.getElementById("payload").value;
+          try {
+            const parsedPayload = JSON.parse(payloadValue);
+
+            // Update the payload with the new configuration
+            payload["arguments"] = payload["arguments"] || {};
+            payload["arguments"].execute = payload["arguments"].execute || {};
+            payload["arguments"].execute.inArguments = [
+              { payload: parsedPayload },
+            ];
+
+            console.log("Saving payload:", payload);
+
+            // The 'next' event sends the payload back to Journey Builder
+            connection.trigger("updateActivity", payload);
+          } catch (e) {
+            alert("Invalid JSON in payload. Please correct and try again.");
+            console.error("Invalid JSON:", e);
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
