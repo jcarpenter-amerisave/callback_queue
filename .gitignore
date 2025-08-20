@@ -1,0 +1,11 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+generate_jwt.js
+
+node_modules
+index.bak
+config.bak
+index.bak2
+customActivity.bak

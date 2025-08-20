@@ -1,0 +1,60 @@
+{
+  "key": "callback-queue-api-activity",
+  "name": "Callback Queue API Activity",
+  "description": "Sends a custom payload to an external API endpoint after authenticating.",
+  "lang": {
+    "en-US": {
+      "name": "Callback Queue API Activity",
+      "description": "Sends a custom payload to an external API."
+    }
+  },
+  "icon": "./AMC_Icon.png",
+  "category": "message",
+  "version": "1.0",
+  "editor": {
+    "url": "https://flywheel.amerisave.com/sfmc-callback/v1/",
+    "height": 450
+  },
+  "publishedEvents": {
+    "save": true,
+    "validate": true
+  },
+  "configurationArguments": {
+    "applicationExtensionKey": "c4e530f5-131d-43a9-9729-ca770a6adcab",
+    "save": {
+      "url": "https://flywheel.amerisave.com/sfmc-callback/v1/",
+      "verb": "POST",
+      "body": "",
+      "useJwt": true
+    },
+    "publish": {
+      "url": "https://flywheel.amerisave.com/sfmc-callback/v1/",
+      "verb": "POST",
+      "body": "",
+      "useJwt": true
+    },
+    "validate": {
+      "url": "https://flywheel.amerisave.com/sfmc-callback/v1/",
+      "verb": "POST",
+      "body": "",
+      "useJwt": true
+    }
+  },
+  "arguments": {
+    "execute": {
+      "inArguments": [
+        {
+          "payload": "{{Payload}}"
+        }
+      ],
+      "outArguments": [],
+      "url": "https://flywheel.amerisave.com/sfmc-callback/v1/",
+      "verb": "POST",
+      "body": "",
+      "useJwt": true,
+      "timeout": 60000,
+      "retryCount": 3,
+      "retryDelay": 1000
+    }
+  }
+}

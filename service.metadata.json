@@ -1,0 +1,30 @@
+{
+  "name": "sfmc-callback",
+  "urlPathPrefix": "/sfmc-callback/v1",
+  "prefix": "sfmc-callback",
+  "version": "0.19.0",
+  "deployedTo": [
+    "ARO"
+  ],
+  "department": "Sales and Marketing",
+  "team": "Salesforce Marketing Cloud",
+  "contacts": [
+    "jacarpenter@amerisave.com"
+  ],
+  "deployedApiVersions": [
+    "v1"
+  ],
+  "healthStatusEndpoints": [
+    "/health-status"
+  ],
+  "healthStatusEndpointPath": "/health-status",
+  "dr": {
+    "rto": "24h",
+    "rpo": "36h"
+  },
+  "dependsOn": [],
+  "eventManifest": "TBD",
+  "additionalMetadata": {
+    "description": "Salesforce Marketing Cloud Callback Service"
+  }
+}

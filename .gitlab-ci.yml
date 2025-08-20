@@ -1,0 +1,11 @@
+include:
+  - project: "mortgagems/devops/gitlab-commons"
+    ref: stable
+    file: "/v3/pipelines/NodeLTSService.gitlab-ci.yml"
+
+variables:
+  SERVICE_NAME: sfmc-callback
+  SERVICE_NAMESPACE: amc-salesforce-marketing-scripts
+  SERVICE_VERSION: v1
+  SKIP_TEST: "true"
+  SKIP_LINT: "true"
